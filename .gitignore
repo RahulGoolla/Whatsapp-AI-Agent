@@ -1,0 +1,30 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Environments
+.env
+backend/.env
+.venv/
+env/
+venv/
+ENV/
+
+# Database & Vector Data
+*.sqlite
+*.sqlite3
+aivastra.db
+chroma_data/
+
+# Storage & Uploads
+uploads/
+backend/uploads/
+
+# Logs & Cache
+*.log
+.pytest_cache/
+.ruff_cache/
+.idea/
+.vscode/
+.DS_Store

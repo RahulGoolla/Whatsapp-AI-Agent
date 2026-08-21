@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ai Vastra — WhatsApp AI Sales Agent</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      /* Light Theme Variables */
+      --bg-canvas: #f8fafc;
+      --bg-panel: #ffffff;
+      --bg-card: #ffffff;
+      --bg-user-card: #f1f5f9;
+      --bg-input: #ffffff;
+      --bg-pill: #f8fafc;
+      --bg-pill-hover: #f1f5f9;
+      --border-color: #e2e8f0;
+      --border-card: #e2e8f0;
+      --text-primary: #0f172a;
+      --text-secondary: #64748b;
+      --text-muted: #94a3b8;
+      --scroll-thumb: #cbd5e1;
+      --citation-bg: #fdf2f8;
+      --citation-border: #fbcfe8;
+      --citation-text: #db2777;
+      --interactive-btn-bg: #fdf2f8;
+      --interactive-btn-border: #fbcfe8;
+      --interactive-btn-text: #db2777;
+      --interactive-btn-hover: #fce7f3;
+    }
+
+    html.dark {
+      /* Dark Theme (AI Vastra Studio Obsidian) */
+      --bg-canvas: #0b0d13;
+      --bg-panel: #10131d;
+      --bg-card: #121622;
+      --bg-user-card: #151926;
+      --bg-input: #131722;
+      --bg-pill: #171b28;
+      --bg-pill-hover: #202638;
+      --border-color: #1e2333;
+      --border-card: #22283a;
+      --text-primary: #f1f5f9;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      --scroll-thumb: #23293c;
+      --citation-bg: rgba(236, 72, 153, 0.12);
+      --citation-border: rgba(236, 72, 153, 0.35);
+      --citation-text: #f472b6;
+      --interactive-btn-bg: #181d2a;
+      --interactive-btn-border: #283045;
+      --interactive-btn-text: #f472b6;
+      --interactive-btn-hover: #22283b;
+    }
+
+    * {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      user-select: text !important;
+      -webkit-user-select: text !important;
+      transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+    }
+
+    body {
+      background-color: var(--bg-canvas);
+      color: var(--text-primary);
+    }
+
+    .theme-panel {
+      background-color: var(--bg-panel);
+      border-color: var(--border-color);
+    }
+
+    .theme-canvas {
+      background-color: var(--bg-canvas);
+    }
+
+    .theme-card {
+      background-color: var(--bg-card);
+      border-color: var(--border-card);
+      color: var(--text-primary);
+    }
+
+    .theme-user-card {
+      background-color: var(--bg-user-card);
+      border-color: var(--border-color);
+      color: var(--text-primary);
+    }
+
+    .theme-input-box {
+      background-color: var(--bg-input);
+      border-color: var(--border-color);
+      color: var(--text-primary);
+    }
+
+    .theme-pill {
+      background-color: var(--bg-pill);
+      border-color: var(--border-color);
+      color: var(--text-secondary);
+    }
+
+    .theme-pill:hover {
+      background-color: var(--bg-pill-hover);
+      color: var(--text-primary);
+    }
+
+    .custom-scroll::-webkit-scrollbar {
+      width: 5px;
+    }
+    .custom-scroll::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .custom-scroll::-webkit-scrollbar-thumb {
+      background: var(--scroll-thumb);
+      border-radius: 9999px;
+    }
+
+    .vastra-gradient {
+      background: linear-gradient(135deg, #e11d48 0%, #ec4899 50%, #d946ef 100%);
+    }
+
+    .vastra-btn {
+      background: linear-gradient(135deg, #e11d48 0%, #ec4899 100%);
+      box-shadow: 0 4px 15px -3px rgba(236, 72, 153, 0.4);
+    }
+    .vastra-btn:hover {
+      background: linear-gradient(135deg, #be123c 0%, #db2777 100%);
+      box-shadow: 0 4px 20px -2px rgba(236, 72, 153, 0.55);
+    }
+
+    .citation-pill {
+      background-color: var(--citation-bg);
+      border: 1px solid var(--citation-border);
+      color: var(--citation-text);
+    }
+
+    .interactive-btn {
+      background-color: var(--interactive-btn-bg);
+      border: 1px solid var(--interactive-btn-border);
+      color: var(--interactive-btn-text);
+    }
+    .interactive-btn:hover {
+      background-color: var(--interactive-btn-hover);
+    }
+  </style>
+</head>
+<body class="h-screen flex overflow-hidden antialiased">
+
+  <!-- LEFT SIDEBAR -->
+  <aside class="w-64 theme-panel border-r flex flex-col justify-between hidden md:flex shrink-0">
+    
+    <!-- Top Section -->
+    <div class="p-4 space-y-4">
+      
+      <!-- Brand Logo: AI Vastra -->
+      <div class="pb-3 border-b" style="border-color: var(--border-color);">
+        <div class="flex items-center space-x-2">
+          <img id="mainLogo" src="/static/logo_dark.png" alt="Ai Vastra Logo" class="h-7 w-auto object-contain" onerror="this.style.display='none'; document.getElementById('fallbackLogo').style.display='flex';" />
+          <div id="fallbackLogo" class="hidden items-center space-x-2">
+            <div class="w-8 h-8 rounded-lg vastra-btn flex items-center justify-center text-white shadow-md">
+              <i class="fa-solid fa-infinity text-sm"></i>
+            </div>
+            <div class="font-extrabold text-sm tracking-wide text-pink-500">Ai Vastra</div>
+          </div>
+        </div>
+        <div class="mt-2 inline-flex items-center space-x-1.5 px-2 py-0.5 rounded-md bg-pink-500/10 border border-pink-500/20 text-pink-500 text-[11px] font-semibold tracking-wide">
+          <span class="w-1.5 h-1.5 rounded-full bg-pink-500 animate-pulse"></span>
+          <span>WhatsApp AI Agent</span>
+        </div>
+      </div>
+
+      <!-- Live WhatsApp Sessions Header -->
+      <div class="space-y-2 pt-1">
+        <div class="text-[10px] font-bold uppercase tracking-wider" style="color: var(--text-muted);">Active Chat Session</div>
+        <div id="recentChatsList" class="space-y-1">
+          <div class="theme-pill border-l-2 !border-pink-500 text-xs px-2.5 py-2 rounded-r-md flex items-center space-x-2 cursor-pointer truncate font-medium">
+            <i class="fa-brands fa-whatsapp text-xs text-emerald-500"></i>
+            <span id="sidebarActiveTitle" class="truncate" style="color: var(--text-primary);">Live WhatsApp Session</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Bottom Controls: Theme Toggle & Support Card -->
+    <div class="border-t theme-panel divide-y" style="border-color: var(--border-color); divide-color: var(--border-color);">
+      
+      <!-- Dark / Light Theme Toggle -->
+      <div class="p-3 flex items-center justify-between">
+        <div class="flex items-center space-x-2 text-xs font-medium" style="color: var(--text-secondary);">
+          <i id="themeIcon" class="fa-solid fa-moon text-pink-500"></i>
+          <span id="themeLabel">Dark Theme</span>
+        </div>
+        <button onclick="toggleTheme()" class="w-11 h-6 rounded-full theme-pill border p-0.5 flex items-center transition-all focus:outline-none cursor-pointer" title="Toggle Light/Dark Theme">
+          <div id="themeToggleThumb" class="w-4 h-4 rounded-full bg-pink-500 transform translate-x-5 transition-transform duration-200 shadow-sm"></div>
+        </button>
+      </div>
+
+      <!-- User Profile / Support Card -->
+      <div class="p-3 flex items-center space-x-2.5">
+        <div class="w-8 h-8 rounded-full vastra-gradient flex items-center justify-center text-white text-xs font-bold shadow">
+          AV
+        </div>
+        <div class="truncate">
+          <div class="font-bold text-xs truncate" style="color: var(--text-primary);">Ai Vastra Sales</div>
+          <div class="text-[10px] text-pink-500 font-medium truncate">support@aivastra.com</div>
+        </div>
+      </div>
+
+    </div>
+
+  </aside>
+
+  <!-- MAIN CHAT PLATFORM -->
+  <div class="flex-1 flex flex-col theme-canvas overflow-hidden">
+    
+    <!-- TOP HEADER -->
+    <header class="h-14 theme-panel border-b px-5 flex items-center justify-between z-20 shrink-0">
+      
+      <!-- Knowledge Base & Mobile Brand -->
+      <div class="flex items-center space-x-3">
+        <div class="flex md:hidden items-center space-x-1.5">
+          <img id="mobileLogo" src="/static/logo_dark.png" alt="Ai Vastra" class="h-6 w-auto object-contain" />
+        </div>
+        <div class="flex items-center space-x-2 theme-pill border px-3 py-1 rounded-lg text-xs">
+          <i class="fa-regular fa-file-pdf text-pink-500"></i>
+          <span class="font-medium select-all" style="color: var(--text-primary);">AI_Vastra_WhatsApp_AI_FAQ.pdf</span>
+        </div>
+      </div>
+
+      <!-- Header Metrics & Actions -->
+      <div class="flex items-center space-x-2.5 text-xs">
+        
+        <!-- Urgent Leads / CRM Box Button -->
+        <button onclick="openLeadsModal()" class="flex items-center space-x-1.5 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-500 px-3 py-1 rounded-lg font-semibold transition-all cursor-pointer">
+          <i class="fa-solid fa-bell text-xs"></i>
+          <span>Urgent Leads (CRM Box)</span>
+          <span id="leadsBadge" class="bg-amber-500 text-slate-900 px-1.5 py-0.2 rounded-full text-[10px] font-bold ml-0.5">0</span>
+        </button>
+
+        <!-- Model Pill -->
+        <div class="hidden md:flex items-center space-x-2 theme-pill border px-3 py-1 rounded-lg">
+          <i class="fa-solid fa-microchip text-pink-500"></i>
+          <span class="font-medium" style="color: var(--text-secondary);">GPT-4o</span>
+        </div>
+
+        <!-- Status Pill -->
+        <div class="hidden sm:flex items-center space-x-1.5 bg-pink-500/10 border border-pink-500/30 text-pink-500 px-2.5 py-1 rounded-lg text-xs font-medium">
+          <span class="w-2 h-2 rounded-full bg-pink-500 animate-pulse"></span>
+          <span>Vector Search Online</span>
+        </div>
+
+        <!-- Clear Button -->
+        <button onclick="startNewConversation()" class="theme-pill border px-2.5 py-1 rounded-lg text-xs font-medium transition-all cursor-pointer">
+          <i class="fa-solid fa-arrows-rotate mr-1 text-[10px]"></i> Clear
+        </button>
+      </div>
+
+    </header>
+
+    <!-- CHAT MESSAGES CANVAS -->
+    <main id="chatStream" class="flex-1 overflow-y-auto custom-scroll p-4 sm:p-6 space-y-4 max-w-4xl mx-auto w-full flex flex-col">
+      
+      <!-- Clean Empty State Placeholder -->
+      <div id="emptyState" class="m-auto text-center space-y-3 py-12">
+        <div class="w-14 h-14 rounded-2xl vastra-btn flex items-center justify-center text-white text-2xl mx-auto shadow-lg shadow-pink-500/30">
+          <i class="fa-brands fa-whatsapp text-2xl"></i>
+        </div>
+        <div class="space-y-1">
+          <div class="font-bold text-base" style="color: var(--text-primary);">Ai Vastra WhatsApp Sales Agent</div>
+          <p class="text-xs max-w-md mx-auto" style="color: var(--text-secondary);">
+            Ready to receive customer messages. Grounded 100% in verified AI Vastra FAQ knowledge base.
+          </p>
+        </div>
+      </div>
+
+    </main>
+
+    <!-- BOTTOM INPUT SECTION -->
+    <footer class="border-t theme-panel p-4 shrink-0">
+      <div class="max-w-4xl mx-auto space-y-3">
+        
+        <!-- Focus File Selector Bar & Dynamic Quick Prompts -->
+        <div class="flex items-center justify-between text-xs overflow-x-auto pb-1 custom-scroll">
+          <div class="flex items-center space-x-2 shrink-0">
+            <span class="uppercase font-bold text-[10px] tracking-wider" style="color: var(--text-muted);">Active Track:</span>
+            <span id="bottomTrackPill" class="bg-pink-500/10 border border-pink-500/30 text-pink-500 px-2.5 py-0.5 rounded-full text-xs font-medium">
+              GENERAL
+            </span>
+          </div>
+
+          <div id="dynamicQuickChips" class="flex items-center space-x-1.5 shrink-0 pl-3">
+            <button onclick="sendQuickPrompt('hello')" class="px-2.5 py-1 rounded-lg theme-pill border text-xs font-medium transition-all cursor-pointer">
+              "hello"
+            </button>
+            <button onclick="sendQuickPrompt('I want catalogue')" class="px-2.5 py-1 rounded-lg theme-pill border text-xs font-medium transition-all cursor-pointer">
+              "AI Catalogue"
+            </button>
+            <button onclick="sendQuickPrompt('I want virtual try-on')" class="px-2.5 py-1 rounded-lg theme-pill border text-xs font-medium transition-all cursor-pointer">
+              "Virtual Try-On"
+            </button>
+            <button onclick="sendQuickPrompt('Tell me about AI Kiosk')" class="px-2.5 py-1 rounded-lg theme-pill border text-xs font-medium transition-all cursor-pointer">
+              "AI Kiosk"
+            </button>
+            <button onclick="sendQuickPrompt('What are the package plans?')" class="px-2.5 py-1 rounded-lg theme-pill border text-xs font-medium transition-all cursor-pointer">
+              "Pricing & Plans"
+            </button>
+            <button onclick="sendQuickPrompt('Send me live demo')" class="px-2.5 py-1 rounded-lg theme-pill border text-xs font-medium transition-all cursor-pointer">
+              "Live Demo"
+            </button>
+          </div>
+        </div>
+
+        <!-- Input Bar with Send Icon -->
+        <form onsubmit="handleFormSubmit(event)" class="relative flex items-center theme-input-box border rounded-xl focus-within:border-pink-500 focus-within:ring-1 focus-within:ring-pink-500/30 transition-all shadow-sm">
+          <input 
+            id="chatInput"
+            type="text" 
+            placeholder="Type incoming client WhatsApp message..."
+            class="w-full bg-transparent px-4 py-3.5 pr-14 text-sm focus:outline-none select-text placeholder-slate-400"
+            style="color: var(--text-primary);"
+            autocomplete="off"
+          />
+          <button 
+            type="submit" 
+            class="absolute right-2.5 w-9 h-9 rounded-lg vastra-btn text-white flex items-center justify-center transition-all shadow shrink-0 cursor-pointer"
+          >
+            <i class="fa-solid fa-paper-plane text-xs"></i>
+          </button>
+        </form>
+
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- URGENT LEADS / CRM BOX MODAL -->
+  <div id="leadsModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden flex items-center justify-center z-50 p-4">
+    <div class="theme-panel max-w-2xl w-full rounded-2xl p-5 space-y-4 border shadow-2xl max-h-[85vh] flex flex-col">
+      <div class="flex items-center justify-between border-b pb-3" style="border-color: var(--border-color);">
+        <div class="flex items-center space-x-2">
+          <div class="w-8 h-8 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-500 flex items-center justify-center">
+            <i class="fa-solid fa-inbox text-sm"></i>
+          </div>
+          <div>
+            <div class="font-bold text-sm" style="color: var(--text-primary);">Urgent Leads & CRM Inbox</div>
+            <div class="text-[11px]" style="color: var(--text-secondary);">Real-time leads generated from WhatsApp customer sales inquiries</div>
+          </div>
+        </div>
+        <button onclick="closeLeadsModal()" class="hover:text-pink-500 cursor-pointer" style="color: var(--text-secondary);">
+          <i class="fa-solid fa-xmark text-base"></i>
+        </button>
+      </div>
+
+      <div id="leadsListContainer" class="flex-1 overflow-y-auto custom-scroll space-y-2.5 pr-1">
+        <div class="text-center py-8 text-xs" style="color: var(--text-muted);">Loading urgent leads...</div>
+      </div>
+
+      <div class="flex justify-end pt-2 border-t" style="border-color: var(--border-color);">
+        <button onclick="closeLeadsModal()" class="px-4 py-1.5 rounded-lg theme-pill border text-xs font-semibold cursor-pointer" style="color: var(--text-primary);">
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SOURCE CITATION MODAL -->
+  <div id="citationModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden flex items-center justify-center z-50 p-4">
+    <div class="theme-panel max-w-lg w-full rounded-2xl p-5 space-y-3.5 border shadow-2xl">
+      <div class="flex items-center justify-between border-b pb-3" style="border-color: var(--border-color);">
+        <div class="flex items-center space-x-2">
+          <i class="fa-solid fa-file-pdf text-pink-500 text-base"></i>
+          <span id="modalDocTitle" class="font-bold text-sm select-all" style="color: var(--text-primary);">AI_Vastra_WhatsApp_AI_FAQ.pdf</span>
+        </div>
+        <button onclick="closeCitationModal()" class="hover:text-pink-500 cursor-pointer" style="color: var(--text-secondary);">
+          <i class="fa-solid fa-xmark text-base"></i>
+        </button>
+      </div>
+
+      <div class="space-y-1.5">
+        <div class="text-xs text-pink-500 font-mono select-all" id="modalDocPage">Document Source #1 • Page 5</div>
+        <div class="p-3.5 rounded-xl border text-xs leading-relaxed font-mono whitespace-pre-wrap select-all theme-user-card" id="modalSnippet">
+          Source snippet...
+        </div>
+      </div>
+
+      <div class="flex justify-end pt-1">
+        <button onclick="closeCitationModal()" class="px-4 py-1.5 rounded-lg theme-pill border text-xs font-semibold transition-colors cursor-pointer" style="color: var(--text-primary);">
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let currentSessionPhone = sessionStorage.getItem('aivastra_session_phone');
+    if (!currentSessionPhone) {
+      currentSessionPhone = 'tab_' + Math.random().toString(36).substring(2, 9);
+      sessionStorage.setItem('aivastra_session_phone', currentSessionPhone);
+    }
+    let currentConversationId = null;
+    let currentActiveTrack = "unassigned";
+    let citationsCache = [];
+    let isDarkMode = true;
+
+    // Theme Switcher Logic
+    function applyTheme(isDark) {
+      isDarkMode = isDark;
+      const html = document.documentElement;
+      const logo = document.getElementById('mainLogo');
+      const mobileLogo = document.getElementById('mobileLogo');
+      const icon = document.getElementById('themeIcon');
+      const label = document.getElementById('themeLabel');
+      const thumb = document.getElementById('themeToggleThumb');
+
+      if (isDark) {
+        html.classList.add('dark');
+        if (logo) logo.src = '/static/logo_dark.png';
+        if (mobileLogo) mobileLogo.src = '/static/logo_dark.png';
+        if (icon) icon.className = 'fa-solid fa-moon text-pink-500';
+        if (label) label.innerText = 'Dark Theme';
+        if (thumb) thumb.className = 'w-4 h-4 rounded-full bg-pink-500 transform translate-x-5 transition-transform duration-200 shadow-sm';
+      } else {
+        html.classList.remove('dark');
+        if (logo) logo.src = '/static/logo_light.png';
+        if (mobileLogo) mobileLogo.src = '/static/logo_light.png';
+        if (icon) icon.className = 'fa-solid fa-sun text-amber-500';
+        if (label) label.innerText = 'Light Theme';
+        if (thumb) thumb.className = 'w-4 h-4 rounded-full bg-pink-500 transform translate-x-0 transition-transform duration-200 shadow-sm';
+      }
+      localStorage.setItem('aivastra_theme', isDark ? 'dark' : 'light');
+    }
+
+    function toggleTheme() {
+      applyTheme(!isDarkMode);
+    }
+
+    const savedTheme = localStorage.getItem('aivastra_theme');
+    if (savedTheme === 'light') applyTheme(false);
+    else applyTheme(true);
+
+    refreshLeadsCount();
+
+    function updateTrackDisplay() {
+      const bottomTrackElem = document.getElementById('bottomTrackPill');
+      bottomTrackElem.innerText = currentActiveTrack && currentActiveTrack !== 'unassigned' ? currentActiveTrack.toUpperCase().replace('_', ' ') : "GENERAL";
+    }
+
+    function sendQuickPrompt(text) {
+      document.getElementById('chatInput').value = text;
+      handleFormSubmit(new Event('submit'));
+    }
+
+    async function handleFormSubmit(e) {
+      if (e) e.preventDefault();
+      const input = document.getElementById('chatInput');
+      const text = input.value.trim();
+      if (!text) return;
+
+      input.value = '';
+      appendUserCard(text);
+      await askAgent(text);
+    }
+
+    function copyContent(text, btnElem) {
+      navigator.clipboard.writeText(text).then(() => {
+        const originalHtml = btnElem.innerHTML;
+        btnElem.innerHTML = '<i class="fa-solid fa-check text-pink-500 text-[10px]"></i> <span class="text-pink-500 text-[10px]">Copied!</span>';
+        setTimeout(() => {
+          btnElem.innerHTML = originalHtml;
+        }, 1800);
+      });
+    }
+
+    function appendUserCard(text) {
+      const stream = document.getElementById('chatStream');
+      const empty = document.getElementById('emptyState');
+      if (empty) empty.remove();
+
+      const userCardId = 'user-card-' + Date.now();
+      const div = document.createElement('div');
+      div.id = userCardId;
+      div.className = 'theme-user-card border rounded-xl p-4 sm:p-5 shadow-sm space-y-2 select-text';
+      div.innerHTML = `
+        <div class="flex items-center justify-between">
+          <div class="flex items-center space-x-2.5">
+            <div class="w-7 h-7 rounded-lg theme-pill border flex items-center justify-center text-xs font-bold" style="color: var(--text-secondary);">
+              <i class="fa-regular fa-user text-xs"></i>
+            </div>
+            <div class="font-bold text-xs uppercase tracking-wider select-text" style="color: var(--text-secondary);">YOU (CLIENT)</div>
+          </div>
+          <button onclick="copyContent(\`${escapeHtml(text).replace(/`/g, '\\`')}\`, this)" class="hover:text-pink-500 text-xs flex items-center space-x-1 p-1 rounded transition-all cursor-pointer" style="color: var(--text-secondary);" title="Copy message">
+            <i class="fa-regular fa-copy text-[11px]"></i>
+            <span class="text-[10px]">Copy</span>
+          </button>
+        </div>
+        <div class="text-sm leading-relaxed pl-9 whitespace-pre-wrap select-text" style="color: var(--text-primary);">${escapeHtml(text)}</div>
+      `;
+      stream.appendChild(div);
+      stream.scrollTop = stream.scrollHeight;
+
+      const titleSnippet = text.length > 25 ? text.slice(0, 25) + '...' : text;
+      document.getElementById('sidebarActiveTitle').innerText = titleSnippet;
+    }
+
+    async function askAgent(query) {
+      const stream = document.getElementById('chatStream');
+      const bubbleId = 'bot-reply-' + Date.now();
+      const cardId = 'bot-card-' + Date.now();
+      
+      const botCard = document.createElement('div');
+      botCard.id = cardId;
+      botCard.className = 'theme-card border rounded-xl p-4 sm:p-5 shadow-sm space-y-2 select-text';
+      botCard.innerHTML = `
+        <div class="flex items-center justify-between">
+          <div class="flex items-center space-x-2.5">
+            <div class="w-7 h-7 rounded-lg vastra-btn flex items-center justify-center text-white text-xs font-bold shadow">
+              <i class="fa-solid fa-infinity text-xs"></i>
+            </div>
+            <div class="font-bold text-xs text-pink-500 uppercase tracking-wider select-text">Ai Vastra Agent</div>
+          </div>
+          <button id="copy-btn-${bubbleId}" class="hover:text-pink-500 text-xs flex items-center space-x-1 p-1 rounded transition-all hidden cursor-pointer" style="color: var(--text-secondary);" title="Copy reply">
+            <i class="fa-regular fa-copy text-[11px]"></i>
+            <span class="text-[10px]">Copy</span>
+          </button>
+        </div>
+        <div id="${bubbleId}" class="text-sm leading-relaxed pl-9 whitespace-pre-wrap select-text" style="color: var(--text-primary);">
+          <span class="inline-flex items-center space-x-2 animate-pulse text-xs font-medium" style="color: var(--text-secondary);">
+            <i class="fa-solid fa-circle-notch fa-spin text-pink-500"></i>
+            <span>Consulting AI_Vastra_WhatsApp_AI_FAQ.pdf...</span>
+          </span>
+        </div>
+      `;
+      stream.appendChild(botCard);
+      stream.scrollTop = stream.scrollHeight;
+
+      try {
+        const payload = { 
+          message: query,
+          sender_phone: currentSessionPhone,
+        };
+        if (currentConversationId) {
+          payload.conversation_id = currentConversationId;
+        }
+
+        const response = await fetch('/api/v1/whatsapp/message', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await response.json();
+        
+        if (data.conversation_id) {
+          currentConversationId = data.conversation_id;
+        }
+        if (data.active_track) {
+          currentActiveTrack = data.active_track;
+        }
+        updateTrackDisplay();
+        refreshLeadsCount();
+
+        citationsCache = data.citations || [];
+        const contentElem = document.getElementById(bubbleId);
+        const copyBtn = document.getElementById(`copy-btn-${bubbleId}`);
+        
+        if (data.is_ignored) {
+          contentElem.innerHTML = `<span class="italic text-xs select-text" style="color: var(--text-muted);"><i class="fa-solid fa-volume-xmark mr-1.5"></i>[No reply sent — Client message is unrelated to AI Vastra]</span>`;
+          return;
+        }
+
+        let formattedReply = formatCitations(data.reply);
+        
+        if (data.interactive_buttons && data.interactive_buttons.length > 0) {
+          formattedReply += `
+            <div class="mt-3.5 pt-3 border-t space-y-2" style="border-color: var(--border-color);">
+              <div class="text-[11px] font-medium" style="color: var(--text-secondary);">Please select an option:</div>
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                ${data.interactive_buttons.map(btn => `
+                  <button onclick="sendQuickPrompt(\`${btn.query.replace(/`/g, '\\`')}\`)" class="w-full py-2.5 px-3 rounded-lg interactive-btn font-semibold text-xs transition-all flex items-center justify-center space-x-1.5 shadow-sm text-center cursor-pointer">
+                    <span>${btn.title}</span>
+                  </button>
+                `).join('')}
+              </div>
+            </div>
+          `;
+        }
+
+        if (data.is_escalated) {
+          formattedReply += `
+            <div class="mt-3.5 p-3 rounded-xl bg-pink-500/10 border border-pink-500/20 text-xs space-y-1.5 select-text">
+              <div class="font-bold text-pink-500 flex items-center space-x-2 text-xs select-text">
+                <i class="fa-solid fa-headset text-pink-500"></i>
+                <span>Ai Vastra Sales Team Notification</span>
+              </div>
+              <p class="select-text" style="color: var(--text-secondary);">Our team will contact you shortly to assist you directly.</p>
+            </div>
+          `;
+        }
+
+        contentElem.innerHTML = formattedReply;
+        if (copyBtn) {
+          copyBtn.classList.remove('hidden');
+          copyBtn.onclick = () => copyContent(data.reply, copyBtn);
+        }
+
+        stream.scrollTop = stream.scrollHeight;
+
+      } catch (err) {
+        document.getElementById(bubbleId).innerHTML = `<span class="text-rose-500 select-text">Error: ${err.message}</span>`;
+      }
+    }
+
+    function formatCitations(text) {
+      let cleanText = text.replace(/\*\*/g, '');
+      let escaped = escapeHtml(cleanText);
+      return escaped.replace(/\[(\d+)\]/g, (match, p1) => {
+        const index = parseInt(p1);
+        return `<button onclick="openCitationModal(${index})" class="citation-pill inline-flex items-center justify-center mx-0.5 px-1.5 py-0.2 rounded text-[11px] font-bold font-mono transition-colors shadow-sm cursor-pointer select-text">[${index}]</button>`;
+      });
+    }
+
+    function openCitationModal(index) {
+      const cit = citationsCache.find(c => c.index === index) || {
+        filename: 'AI_Vastra_WhatsApp_AI_FAQ.pdf',
+        page: index <= 2 ? 5 : 6,
+        text_snippet: 'Verified AI Vastra FAQ section from official knowledge base.'
+      };
+
+      document.getElementById('modalDocTitle').innerText = cit.filename || 'AI_Vastra_WhatsApp_AI_FAQ.pdf';
+      document.getElementById('modalDocPage').innerText = `Source Citation [${index}] • Page ${cit.page || 5}`;
+      document.getElementById('modalSnippet').innerText = cit.text_snippet || 'Verified knowledge base document context.';
+      document.getElementById('citationModal').classList.remove('hidden');
+    }
+
+    function closeCitationModal() {
+      document.getElementById('citationModal').classList.add('hidden');
+    }
+
+    async function refreshLeadsCount() {
+      try {
+        const res = await fetch('/api/v1/whatsapp/leads');
+        const leads = await res.json();
+        document.getElementById('leadsBadge').innerText = leads.length || 0;
+      } catch (e) {}
+    }
+
+    async function openLeadsModal() {
+      const container = document.getElementById('leadsListContainer');
+      document.getElementById('leadsModal').classList.remove('hidden');
+      container.innerHTML = '<div class="text-center py-8 text-xs" style="color: var(--text-muted);">Fetching urgent leads...</div>';
+
+      try {
+        const res = await fetch('/api/v1/whatsapp/leads');
+        const leads = await res.json();
+
+        if (!leads || leads.length === 0) {
+          container.innerHTML = '<div class="text-center py-8 text-xs" style="color: var(--text-muted);">No urgent leads recorded yet. Leads will automatically appear here when customers request purchase or contact a sales rep.</div>';
+          return;
+        }
+
+        container.innerHTML = leads.map(l => `
+          <div class="theme-user-card border p-3 rounded-xl space-y-1.5">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center space-x-2">
+                <span class="px-2 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-500 font-bold text-[10px] uppercase">${l.status}</span>
+                <span class="font-bold text-xs" style="color: var(--text-primary);">${l.customer_name || 'Customer'} (${l.customer_phone})</span>
+              </div>
+              <span class="text-[10px]" style="color: var(--text-muted);">${l.created_at}</span>
+            </div>
+            <div class="text-xs" style="color: var(--text-secondary);">${escapeHtml(l.requirement_summary)}</div>
+            <div class="flex items-center justify-between pt-1">
+              <span class="text-[10px] font-semibold text-pink-500 uppercase">Track: ${l.active_track}</span>
+              <a href="https://wa.me/${l.customer_phone.replace(/[^0-9]/g, '')}?text=Hi%20${encodeURIComponent(l.customer_name || 'there')},%20this%20is%20Ai%20Vastra%20Sales%20Team" target="_blank" class="px-2.5 py-0.5 rounded bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-[10px] flex items-center space-x-1">
+                <i class="fa-brands fa-whatsapp"></i>
+                <span>Direct Contact</span>
+              </a>
+            </div>
+          </div>
+        `).join('');
+
+      } catch (e) {
+        container.innerHTML = `<div class="text-rose-500 text-xs">Error loading leads: ${e.message}</div>`;
+      }
+    }
+
+    function closeLeadsModal() {
+      document.getElementById('leadsModal').classList.add('hidden');
+    }
+
+    function startNewConversation() {
+      currentConversationId = null;
+      currentActiveTrack = "unassigned";
+      currentSessionPhone = 'tab_' + Math.random().toString(36).substring(2, 9);
+      sessionStorage.setItem('aivastra_session_phone', currentSessionPhone);
+      updateTrackDisplay();
+      const stream = document.getElementById('chatStream');
+      stream.innerHTML = `
+        <div id="emptyState" class="m-auto text-center space-y-3 py-12 select-text">
+          <div class="w-14 h-14 rounded-2xl vastra-btn flex items-center justify-center text-white text-2xl mx-auto shadow-lg shadow-pink-500/30">
+            <i class="fa-brands fa-whatsapp text-2xl"></i>
+          </div>
+          <div class="space-y-1 select-text">
+            <div class="font-bold text-base select-text" style="color: var(--text-primary);">Ai Vastra WhatsApp Sales Agent</div>
+            <p class="text-xs max-w-md mx-auto select-text" style="color: var(--text-secondary);">
+              Ready to receive customer messages. Grounded 100% in verified AI Vastra FAQ knowledge base.
+            </p>
+          </div>
+        </div>
+      `;
+      document.getElementById('sidebarActiveTitle').innerText = 'Live WhatsApp Session';
+    }
+
+    function escapeHtml(string) {
+      return String(string).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+  </script>
+</body>
+</html>
