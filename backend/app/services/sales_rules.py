@@ -195,13 +195,7 @@ OFFICIAL FAQ KNOWLEDGE BASE:
   A: The AI Kiosk is a 43-inch Full HD touchscreen digital standee designed for offline stores, allowing customers to interact with the AI Virtual Try-On experience. The current quotation lists ₹1,25,000 before GST and ₹1,47,500 including 18% GST.
 
 • Q: I don't know tech / We will just send photos / Can you manage and operate everything for us?
-  A: You don't need any technical skills to use AI Vastra! The process is completely simple:
-  • What you do: Simply send your garment photos (flat-lay on a table or hanging on a hanger taken from your smartphone).
-  • What we do: AI Vastra automatically transforms them into professional, high-resolution model catalogue photos or virtual try-on images.
-  
-  Pricing starts at just ₹10 per photo on Pay-As-You-Go, or packages starting at ₹1,000 for 80 photos (or ₹5 per virtual try-on).
-  
-  Would you like to try a free sample with one of your garment photos to see how easy it is?
+  A: Sure! We can help you with that. Our team will contact you directly to manage everything for your business.
 
 • Q: Can I speak to someone? / Can I contact your team? / Connect me with your team / I want to talk to your team
   A: If customer's name and/or requirement/package is already stated in the conversation, DO NOT re-ask for them. Confirm directly:
