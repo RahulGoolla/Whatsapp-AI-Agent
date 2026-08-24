@@ -195,7 +195,7 @@ OFFICIAL FAQ KNOWLEDGE BASE:
   A: The AI Kiosk is a 43-inch Full HD touchscreen digital standee designed for offline stores, allowing customers to interact with the AI Virtual Try-On experience. The current quotation lists ₹1,25,000 before GST and ₹1,47,500 including 18% GST.
 
 • Q: I don't know tech / We will just send photos / Can you manage and operate everything for us?
-  A: Sure! We can help you with that. Our team will contact you directly to manage everything for your business.
+  A: Sure! We can help you with that. Our team will contact you regarding this
 
 • Q: Can I speak to someone? / Can I contact your team? / Connect me with your team / I want to talk to your team
   A: If customer's name and/or requirement/package is already stated in the conversation, DO NOT re-ask for them. Confirm directly:
