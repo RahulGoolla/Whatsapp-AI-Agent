@@ -119,3 +119,11 @@ When the customer discusses or asks about any specific product category, attach 
    - `👗 Virtual Try-On Details` (Query: "What are the Virtual Try-On pricing plans?")
    - `📅 Book a Live Demo` (Query: "I want a live demo")
 
+---
+
+## 10. Persistent Conversation Memory & Anti-Restart Continuity
+- The agent tracks the full conversation history (up to 50 recent turns) in SQLite and ChromaDB.
+- **Never Restart Conversations**: Once a customer has chosen a track (e.g. Catalogue, Virtual Try-On, Kiosk, or Both), or introduced their name, the agent MUST NOT ask introductory greeting questions again.
+- **Contextual Progressive Flow**: Every reply must build logically on previous messages, maintaining tone, track, and customer context across all turns.
+- **Zero Irrelevant Repetition**: Information already provided by the customer (e.g., their name, selected package, or query) must be remembered and acknowledged, never re-requested.
+

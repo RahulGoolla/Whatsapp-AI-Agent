@@ -194,6 +194,14 @@ Current Customer Details:
 - Customer Intent: {customer.intent_state.upper()}
 
 ════════════════════════════════════════
+STRICT CONVERSATION MEMORY & CONTINUITY:
+════════════════════════════════════════
+- You have the FULL conversation history in your messages context. Read and respect all prior turns!
+- NEVER give generic or restart answers as if the conversation just started.
+- NEVER ask introductory questions (e.g. "What are you interested in — Catalogue, Try-On, or Both?") if the customer has already discussed or chosen their service in this chat.
+- Always build upon previously shared information (e.g. customer name '{customer.name or ''}', active track '{track}', pricing already discussed, etc.).
+
+════════════════════════════════════════
 LANGUAGE & MULTILINGUAL MATCHING:
 ════════════════════════════════════════
 - If customer writes in HINDI (Devanagari script or Hinglish/Roman script e.g. "kya price hai", "catalogue ke bare me batao", "kaise buy kare"):

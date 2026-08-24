@@ -137,19 +137,19 @@ async def handle_whatsapp_message(
         await db.commit()
         await db.refresh(conversation)
 
-    # Check if incoming message is a pure greeting
-    clean_msg = payload.message.lower().strip()
-    is_greeting = bool(re.search(r"^(hi|hello|hey|start|namaste|good\s+(morning|afternoon|evening))\b", clean_msg)) and len(clean_msg.split()) <= 4
-
-    # 4. Load Conversation History
+    # 4. Load Complete Conversation History (Up to 50 recent messages)
     hist_query = (
         select(Message)
         .where(Message.conversation_id == conversation.id)
         .order_by(Message.created_at.asc())
-        .limit(10)
+        .limit(50)
     )
     hist_res = await db.execute(hist_query)
     history_records = hist_res.scalars().all()
+
+    is_initial_turn = len(history_records) == 0
+    clean_msg = payload.message.lower().strip()
+    is_greeting = is_initial_turn and bool(re.search(r"^(hi|hello|hey|start|namaste|good\s+(morning|afternoon|evening))\b", clean_msg))
 
     messages_history = [
         {"role": msg.role, "content": msg.content} for msg in history_records
@@ -176,7 +176,7 @@ async def handle_whatsapp_message(
         )
 
     # 6. Execute AI Vastra RAG or Official Section 10 Greeting
-    is_hindi_greeting = bool(re.search(r"^(namaste|pranam|namaskar|shubh\s+sandhya|shubh\s+prabhat|नमस्ते|प्रणाम|नमस्कार)\b", clean_msg))
+    is_hindi_greeting = is_initial_turn and bool(re.search(r"^(namaste|pranam|namaskar|shubh\s+sandhya|shubh\s+prabhat|नमस्ते|प्रणाम|नमस्कार)\b", clean_msg))
     if is_hindi_greeting:
         rag_result = {
             "response": "नमस्ते! 👋 AI Vastra में आपका स्वागत है। हम फैशन बिज़नेस के लिए AI Catalogue Photo Creation और AI Virtual Try-On सेवाएं प्रदान करते हैं। आप किसमें रुचि रखते हैं — Catalogue Creation, Virtual Try-On, या दोनों?",
