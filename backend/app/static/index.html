@@ -618,6 +618,24 @@
     function formatCitations(text) {
       let cleanText = text.replace(/\*\*/g, '');
       let escaped = escapeHtml(cleanText);
+      
+      // 1. Convert URLs starting with http:// or https://
+      escaped = escaped.replace(/(https?:\/\/[^\s<]+)/g, (url) => {
+        return `<a href="${url}" target="_blank" rel="noopener noreferrer" class="text-pink-500 font-semibold hover:underline inline-flex items-center">${url} <i class="fa-solid fa-arrow-up-right-from-square text-[10px] ml-1"></i></a>`;
+      });
+
+      // 2. Convert standalone domains like aivastra.com (not preceded by href=")
+      escaped = escaped.replace(/(^|[\s(])(aivastra\.com)(\b|[^\s<]*)/g, (match, prefix, domain, rest) => {
+        const full = domain + (rest || '');
+        return `${prefix}<a href="https://${full}" target="_blank" rel="noopener noreferrer" class="text-pink-500 font-semibold hover:underline inline-flex items-center">${full} <i class="fa-solid fa-arrow-up-right-from-square text-[10px] ml-1"></i></a>`;
+      });
+
+      // 3. Convert email addresses like support@aivastra.com
+      escaped = escaped.replace(/([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/g, (email) => {
+        return `<a href="mailto:${email}" class="text-pink-500 font-semibold hover:underline">${email}</a>`;
+      });
+
+      // 4. Citation brackets [1], [2]
       return escaped.replace(/\[(\d+)\]/g, (match, p1) => {
         const index = parseInt(p1);
         return `<button onclick="openCitationModal(${index})" class="citation-pill inline-flex items-center justify-center mx-0.5 px-1.5 py-0.2 rounded text-[11px] font-bold font-mono transition-colors shadow-sm cursor-pointer select-text">[${index}]</button>`;
