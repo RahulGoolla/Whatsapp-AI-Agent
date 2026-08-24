@@ -229,13 +229,14 @@ async def handle_whatsapp_message(
     # 7. Formulate Contextual Interactive Buttons
     interactive_buttons = []
     
-    # Check if incoming query explicitly clicked or asked about a specific service track
-    asks_catalogue_initial = bool(re.search(r"^(i\s+want\s+catalogue|tell\s+me\s+about\s+catalogue|catalogue\s+creation)\b", clean_msg))
-    asks_vto_initial = bool(re.search(r"^(i\s+want\s+virtual[\s-]?try[\s-]?on|tell\s+me\s+about\s+virtual[\s-]?try[\s-]?on|virtual\s+try\s+on)\b", clean_msg))
-    asks_kiosk_initial = bool(re.search(r"^(tell\s+me\s+about\s+ai\s+kiosk|what\s+is\s+ai\s+kiosk|ai\s+kiosk\s+details)\b", clean_msg))
+    # Detect product categories across the user's message
+    is_kiosk_query = bool(re.search(r"\b(kiosk|standee|touchscreen)\b", clean_msg))
+    is_catalogue_query = bool(re.search(r"\b(catalogue|catalog|flat[\s-]?lay)\b", clean_msg))
+    is_vto_query = bool(re.search(r"\b(virtual[\s-]?try[\s-]?on|try[\s-]?on|vto)\b", clean_msg))
+    is_both_query = (is_catalogue_query and is_vto_query) or bool(re.search(r"\b(both|all\s+three|all\s+3)\b", clean_msg))
     
     if is_greeting:
-        # The 3 core initial options requested by user — fixed on welcome greeting
+        # Fixed 3 core main options on welcome greeting
         interactive_buttons = [
             InteractiveButton(
                 id="btn_catalogue",
@@ -253,7 +254,41 @@ async def handle_whatsapp_message(
                 query="Tell me about AI Kiosk",
             ),
         ]
-    elif asks_catalogue_initial:
+    elif is_kiosk_query:
+        # AI Kiosk sub-options
+        interactive_buttons = [
+            InteractiveButton(
+                id="btn_kiosk_cost",
+                title="💰 Hardware & Setup Cost",
+                query="What is the hardware and setup cost for AI Kiosk?",
+            ),
+            InteractiveButton(
+                id="btn_kiosk_delivery",
+                title="🚚 Delivery & Installation",
+                query="How long does AI Kiosk delivery and setup take?",
+            ),
+        ]
+    elif is_both_query:
+        # Both services sub-options
+        interactive_buttons = [
+            InteractiveButton(
+                id="btn_cat_details",
+                title="📸 AI Catalogue Details",
+                query="What are the catalogue pricing and package plans?",
+            ),
+            InteractiveButton(
+                id="btn_vto_details",
+                title="👗 Virtual Try-On Details",
+                query="What are the Virtual Try-On pricing plans?",
+            ),
+            InteractiveButton(
+                id="btn_live_demo",
+                title="📅 Book a Live Demo",
+                query="I want a live demo",
+            ),
+        ]
+    elif is_catalogue_query:
+        # AI Catalogue sub-options
         interactive_buttons = [
             InteractiveButton(
                 id="btn_cat_buy",
@@ -266,7 +301,8 @@ async def handle_whatsapp_message(
                 query="How can I try a free sample catalogue photo?",
             ),
         ]
-    elif asks_vto_initial:
+    elif is_vto_query:
+        # Virtual Try-On sub-options
         interactive_buttons = [
             InteractiveButton(
                 id="btn_vto_buy",
@@ -284,21 +320,7 @@ async def handle_whatsapp_message(
                 query="Does Virtual Try-On support Shopify integration?",
             ),
         ]
-    elif asks_kiosk_initial:
-        interactive_buttons = [
-            InteractiveButton(
-                id="btn_kiosk_cost",
-                title="💰 Hardware & Setup Cost",
-                query="How much does the AI Kiosk cost including hardware and camera?",
-            ),
-            InteractiveButton(
-                id="btn_kiosk_delivery",
-                title="🚚 Delivery & Installation",
-                query="How long does AI Kiosk delivery and setup take?",
-            ),
-        ]
     else:
-        # For demo scheduling, custom questions, answers, and conversational chat: clean message with NO extra attachments
         interactive_buttons = []
 
     return WhatsAppMessageResponse(
