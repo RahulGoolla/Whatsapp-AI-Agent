@@ -250,7 +250,7 @@
         <!-- Model Pill -->
         <div class="hidden md:flex items-center space-x-2 theme-pill border px-3 py-1 rounded-lg">
           <i class="fa-solid fa-microchip text-pink-500"></i>
-          <span class="font-medium" style="color: var(--text-secondary);">GPT-4o</span>
+          <span class="font-medium" style="color: var(--text-secondary);">GPT-4o-mini</span>
         </div>
 
         <!-- Status Pill -->
@@ -402,11 +402,7 @@
   </div>
 
   <script>
-    let currentSessionPhone = sessionStorage.getItem('aivastra_session_phone');
-    if (!currentSessionPhone) {
-      currentSessionPhone = 'tab_' + Math.random().toString(36).substring(2, 9);
-      sessionStorage.setItem('aivastra_session_phone', currentSessionPhone);
-    }
+    let currentSessionPhone = 'session_' + Math.random().toString(36).substring(2, 9);
     let currentConversationId = null;
     let currentActiveTrack = "unassigned";
     let citationsCache = [];
@@ -717,8 +713,7 @@
     function startNewConversation() {
       currentConversationId = null;
       currentActiveTrack = "unassigned";
-      currentSessionPhone = 'tab_' + Math.random().toString(36).substring(2, 9);
-      sessionStorage.setItem('aivastra_session_phone', currentSessionPhone);
+      currentSessionPhone = 'session_' + Math.random().toString(36).substring(2, 9);
       updateTrackDisplay();
       const stream = document.getElementById('chatStream');
       stream.innerHTML = `

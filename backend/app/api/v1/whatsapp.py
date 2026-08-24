@@ -147,9 +147,12 @@ async def handle_whatsapp_message(
     hist_res = await db.execute(hist_query)
     history_records = hist_res.scalars().all()
 
-    is_initial_turn = len(history_records) == 0
     clean_msg = payload.message.lower().strip()
-    is_greeting = is_initial_turn and bool(re.search(r"^(hi|hello|hey|start|namaste|good\s+(morning|afternoon|evening))\b", clean_msg))
+    is_initial_session = (len(history_records) == 0)
+    is_pure_greeting = bool(re.search(r"^(hi|hello|hey|start|namaste|good\s+(morning|afternoon|evening))\b", clean_msg)) and not bool(re.search(r"\b(catalogue|catalog|virtual|try[\s-]?on|kiosk|demo|contact|team|price|cost|buy)\b", clean_msg))
+
+    is_initial_greeting = is_initial_session and is_pure_greeting
+    is_initial_hindi_greeting = is_initial_session and bool(re.search(r"^(namaste|pranam|namaskar|shubh\s+sandhya|shubh\s+prabhat|नमस्ते|प्रणाम|नमस्कार)\b", clean_msg)) and not bool(re.search(r"\b(catalogue|catalog|virtual|try[\s-]?on|kiosk|demo|contact|team|price|cost|buy)\b", clean_msg))
 
     messages_history = [
         {"role": msg.role, "content": msg.content} for msg in history_records
@@ -176,8 +179,7 @@ async def handle_whatsapp_message(
         )
 
     # 6. Execute AI Vastra RAG or Official Section 10 Greeting
-    is_hindi_greeting = is_initial_turn and bool(re.search(r"^(namaste|pranam|namaskar|shubh\s+sandhya|shubh\s+prabhat|नमस्ते|प्रणाम|नमस्कार)\b", clean_msg))
-    if is_hindi_greeting:
+    if is_initial_hindi_greeting:
         rag_result = {
             "response": "नमस्ते! 👋 AI Vastra में आपका स्वागत है। हम फैशन बिज़नेस के लिए AI Catalogue Photo Creation और AI Virtual Try-On सेवाएं प्रदान करते हैं। आप किसमें रुचि रखते हैं — Catalogue Creation, Virtual Try-On, या दोनों?",
             "citations": [
@@ -192,7 +194,7 @@ async def handle_whatsapp_message(
             "escalation_reason": None,
             "is_ignored": False,
         }
-    elif is_greeting:
+    elif is_initial_greeting:
         rag_result = {
             "response": "Hello! 👋 Welcome to AI Vastra. We provide AI Catalogue Photo Creation and AI Virtual Try-On for fashion businesses. What are you interested in — Catalogue Creation, Virtual Try-On, or Both?",
             "citations": [
@@ -227,15 +229,12 @@ async def handle_whatsapp_message(
         await db.commit()
 
     # 7. Formulate Contextual Interactive Buttons
+    from app.services.state_manager import resolve_primary_track
     interactive_buttons = []
     
-    # Detect product categories across the user's message
-    is_kiosk_query = bool(re.search(r"\b(kiosk|standee|touchscreen)\b", clean_msg))
-    is_catalogue_query = bool(re.search(r"\b(catalogue|catalog|flat[\s-]?lay)\b", clean_msg))
-    is_vto_query = bool(re.search(r"\b(virtual[\s-]?try[\s-]?on|try[\s-]?on|vto)\b", clean_msg))
-    is_both_query = (is_catalogue_query and is_vto_query) or bool(re.search(r"\b(both|all\s+three|all\s+3)\b", clean_msg))
+    primary_category = resolve_primary_track(payload.message)
     
-    if is_greeting:
+    if is_initial_greeting or is_initial_hindi_greeting:
         # Fixed 3 core main options on welcome greeting
         interactive_buttons = [
             InteractiveButton(
@@ -254,54 +253,7 @@ async def handle_whatsapp_message(
                 query="Tell me about AI Kiosk",
             ),
         ]
-    elif is_kiosk_query:
-        # AI Kiosk sub-options
-        interactive_buttons = [
-            InteractiveButton(
-                id="btn_kiosk_cost",
-                title="💰 Hardware & Setup Cost",
-                query="What is the hardware and setup cost for AI Kiosk?",
-            ),
-            InteractiveButton(
-                id="btn_kiosk_delivery",
-                title="🚚 Delivery & Installation",
-                query="How long does AI Kiosk delivery and setup take?",
-            ),
-        ]
-    elif is_both_query:
-        # Both services sub-options
-        interactive_buttons = [
-            InteractiveButton(
-                id="btn_cat_details",
-                title="📸 AI Catalogue Details",
-                query="What are the catalogue pricing and package plans?",
-            ),
-            InteractiveButton(
-                id="btn_vto_details",
-                title="👗 Virtual Try-On Details",
-                query="What are the Virtual Try-On pricing plans?",
-            ),
-            InteractiveButton(
-                id="btn_live_demo",
-                title="📅 Book a Live Demo",
-                query="I want a live demo",
-            ),
-        ]
-    elif is_catalogue_query:
-        # AI Catalogue sub-options
-        interactive_buttons = [
-            InteractiveButton(
-                id="btn_cat_buy",
-                title="💳 Pricing & Plans",
-                query="What are the catalogue pricing and package plans?",
-            ),
-            InteractiveButton(
-                id="btn_cat_sample",
-                title="🎁 Free Sample Info",
-                query="How can I try a free sample catalogue photo?",
-            ),
-        ]
-    elif is_vto_query:
+    elif primary_category == "virtual_tryon":
         # Virtual Try-On sub-options
         interactive_buttons = [
             InteractiveButton(
@@ -318,6 +270,53 @@ async def handle_whatsapp_message(
                 id="btn_vto_shopify",
                 title="🛍️ Shopify & Website",
                 query="Does Virtual Try-On support Shopify integration?",
+            ),
+        ]
+    elif primary_category == "catalogue":
+        # AI Catalogue sub-options
+        interactive_buttons = [
+            InteractiveButton(
+                id="btn_cat_buy",
+                title="💳 Pricing & Plans",
+                query="What are the catalogue pricing and package plans?",
+            ),
+            InteractiveButton(
+                id="btn_cat_sample",
+                title="🎁 Free Sample Info",
+                query="How can I try a free sample catalogue photo?",
+            ),
+        ]
+    elif primary_category == "ai_kiosk":
+        # AI Kiosk sub-options
+        interactive_buttons = [
+            InteractiveButton(
+                id="btn_kiosk_cost",
+                title="💰 Hardware & Setup Cost",
+                query="What is the hardware and setup cost for AI Kiosk?",
+            ),
+            InteractiveButton(
+                id="btn_kiosk_delivery",
+                title="🚚 Delivery & Installation",
+                query="How long does AI Kiosk delivery and setup take?",
+            ),
+        ]
+    elif primary_category == "both":
+        # Both services sub-options
+        interactive_buttons = [
+            InteractiveButton(
+                id="btn_cat_details",
+                title="📸 AI Catalogue Details",
+                query="What are the catalogue pricing and package plans?",
+            ),
+            InteractiveButton(
+                id="btn_vto_details",
+                title="👗 Virtual Try-On Details",
+                query="What are the Virtual Try-On pricing plans?",
+            ),
+            InteractiveButton(
+                id="btn_live_demo",
+                title="📅 Book a Live Demo",
+                query="I want a live demo",
             ),
         ]
     else:

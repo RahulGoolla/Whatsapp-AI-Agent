@@ -39,9 +39,7 @@ class OpenAILLMProvider(BaseLLMProvider):
     """OpenAI implementation using the official async client."""
 
     def __init__(self) -> None:
-        self.model = (
-            "gpt-4o"  # Can be changed to gpt-5 once available in production API
-        )
+        self.model = getattr(settings, "OPENAI_MODEL", "gpt-4o-mini")
         self.client = openai.AsyncOpenAI(api_key=settings.OPENAI_API_KEY)
 
     async def generate_response(

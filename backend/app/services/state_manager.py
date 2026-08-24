@@ -53,6 +53,57 @@ async def get_or_create_customer(
     return customer
 
 
+def resolve_primary_track(message: str) -> str | None:
+    """
+    Intelligently identifies the active subject/category being queried in the user's message.
+    Handles compound sentences like 'ok kiosk is fine, then how can i try this virtual tryon on my phone'
+    by prioritizing the active question clause.
+    """
+    lower = message.lower().strip()
+    
+    # Check if a specific question is asked about a category
+    has_vto = bool(re.search(r"\b(virtual[\s-]?try[\s-]?on|try[\s-]?on|vto)\b", lower))
+    has_cat = bool(re.search(r"\b(catalogue|catalog|flat[\s-]?lay)\b", lower))
+    has_kiosk = bool(re.search(r"\b(kiosk|standee|touchscreen)\b", lower))
+    
+    # 1. Check for explicit multi-service purchase / combo requests
+    if bool(re.search(r"\b(both|all\s+three|all\s+3|all\s+services|everything)\b", lower)):
+        return "both"
+    if (has_cat and has_vto and not has_kiosk and re.search(r"\b(and|both|plus)\b", lower)):
+        return "both"
+
+    # 2. Check clauses from last to first (most recent clause is usually the actual question asked)
+    clauses = re.split(r"[,;.?!\n]|(?:\bthen\b)|(?:\band\s+now\b)|(?:\bwhat\s+about\b)|(?:\bhow\s+about\b)", lower)
+    for clause in reversed(clauses):
+        c = clause.strip()
+        if not c:
+            continue
+        c_vto = bool(re.search(r"\b(virtual[\s-]?try[\s-]?on|try[\s-]?on|vto)\b", c))
+        c_cat = bool(re.search(r"\b(catalogue|catalog|flat[\s-]?lay)\b", c))
+        c_kiosk = bool(re.search(r"\b(kiosk|standee|touchscreen)\b", c))
+        
+        if c_vto and not c_kiosk and not c_cat:
+            return "virtual_tryon"
+        if c_cat and not c_vto and not c_kiosk:
+            return "catalogue"
+        if c_kiosk and not c_vto and not c_cat:
+            return "ai_kiosk"
+        if (c_cat and c_vto) or (c_vto and c_kiosk) or (c_cat and c_kiosk):
+            return "both"
+
+    # 3. Overall sentence check
+    if has_vto and not has_cat and not has_kiosk:
+        return "virtual_tryon"
+    if has_cat and not has_vto and not has_kiosk:
+        return "catalogue"
+    if has_kiosk and not has_vto and not has_cat:
+        return "ai_kiosk"
+    if (has_cat and has_vto) or (has_vto and has_kiosk) or (has_cat and has_kiosk):
+        return "both"
+
+    return None
+
+
 def detect_customer_signals(text: str, current_track: str, current_name: str | None) -> dict[str, Any]:
     """
     Analyzes incoming customer message for Name, Track Preference, and Purchase/Buy intent.
@@ -100,16 +151,9 @@ def detect_customer_signals(text: str, current_track: str, current_name: str | N
         signals["detected_website"] = web_match.group(1).strip()
 
     # 3. Product Track Detection (Catalogue, Virtual Try-On, AI Kiosk, Both / All Three)
-    if re.search(r"\b(both|all\s+services|all\s+three|all\s+3|all\s+of\s+them|all\s+products|everything|buy\s+both|want\s+both|three\s+comined|three\s+combined)\b", lower):
-        signals["detected_track"] = "both"
-    elif re.search(r"\b(catalogue|catalog)\b", lower) and re.search(r"\b(virtual|try[\s-]?on|kiosk)\b", lower):
-        signals["detected_track"] = "both"
-    elif re.search(r"\b(ai\s+kiosk|kiosk|standee|touchscreen|offline\s+store\s+standee)\b", lower) and not re.search(r"\b(catalogue|catalog|virtual|try[\s-]?on)\b", lower):
-        signals["detected_track"] = "ai_kiosk"
-    elif re.search(r"\b(virtual[\s-]?try[\s-]?on|try[\s-]?on|vto|shopify\s+try[\s-]?on)\b", lower) and not re.search(r"\b(catalogue|catalog|kiosk)\b", lower):
-        signals["detected_track"] = "virtual_tryon"
-    elif re.search(r"\b(catalogue|catalog|flat[\s-]?lay|garment\s+photo|product\s+images?|catalogue\s+creation|ai\s+catalogue)\b", lower) and not re.search(r"\b(virtual|try[\s-]?on|kiosk)\b", lower):
-        signals["detected_track"] = "catalogue"
+    detected_track = resolve_primary_track(cleaned)
+    if detected_track:
+        signals["detected_track"] = detected_track
 
     # 4. Intent Detection (Ready to Buy / Live Demo / Managed Service / Human)
     if re.search(r"\b(want\s+to\s+buy|wanna\s+buy|i\s+want\s+buy|how\s+to\s+buy|how\s+can\s+i\s+buy|purchase|pay|order|how\s+to\s+get\s+started|start\s+using|buy\s+now|checkout)\b", lower):
@@ -228,10 +272,17 @@ LIVE DEMO SCHEDULING FLOW:
   "For demo videos, please visit our YouTube channel: https://www.youtube.com/@ai.vastra_tryon/videos"
 
 ════════════════════════════════════════
-OFFICIAL GREETING RULE (SECTION 10):
+GREETING RULES (INITIAL VS MID-CHAT):
 ════════════════════════════════════════
-When the customer sends a greeting (e.g. "hi", "hello", "hey"), deliver the EXACT official welcome message from Section 10:
-"Hello! 👋 Welcome to AI Vastra. We provide AI Catalogue Photo Creation and AI Virtual Try-On for fashion businesses. What are you interested in — Catalogue Creation, Virtual Try-On, or Both?"
+- INITIAL GREETING (When conversation is just starting / Track is UNASSIGNED):
+  Deliver the EXACT Section 10 welcome message:
+  "Hello! 👋 Welcome to AI Vastra. We provide AI Catalogue Photo Creation and AI Virtual Try-On for fashion businesses. What are you interested in — Catalogue Creation, Virtual Try-On, or Both?"
+
+- MID-CONVERSATION GREETING (When conversation is ALREADY in progress / Track is {track.upper()}):
+  DO NOT deliver the initial welcome message!
+  DO NOT ask "What are you interested in — Catalogue Creation, Virtual Try-On, or Both?" again!
+  Greet the customer warmly and ask how to proceed with their active topic:
+  "Hi{f' {customer.name}' if customer.name else ''}! How can I assist you further with your {track.upper() if track != 'unassigned' else 'inquiry'}?"
 
 ════════════════════════════════════════
 STRICT ANTI-LOOP & CONVERSATION RULES:
