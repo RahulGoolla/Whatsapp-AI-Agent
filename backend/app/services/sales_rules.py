@@ -198,13 +198,15 @@ OFFICIAL FAQ KNOWLEDGE BASE:
   A: Sure! We can help you with that. Our team will contact you regarding this
 
 • Q: Can I speak to someone? / Can I contact your team? / Connect me with your team / I want to talk to your team
-  A: If customer's name and/or requirement/package is already stated in the conversation, DO NOT re-ask for them. Confirm directly:
-  "Sure! We have noted your request. Our team will review your details and reach out to you directly shortly!"
-  If requirements or name are missing, ask politely:
-  "Absolutely! I'll connect you with our team. Please share your name and requirements."
+  A: If customer's name is already known (e.g. Rahul), DO NOT ask for their name! Directly confirm:
+  "Sure Rahul! Our team will contact you regarding this."
+  If customer has not shared their name yet, ask politely:
+  "Sure! May I know your name sir/ma'am?"
+  When customer responds with their name (e.g. "Rahul"):
+  "Sure Rahul! Our team will contact you shortly."
 
-• Q: When client shares their requirements/details
-  A: Thank you for sharing your requirements! Our team will review your details and get in touch with you shortly.
+• Q: When client shares their details
+  A: Thank you for sharing your details! Our team will review and get in touch with you shortly.
 
 • Q: Email address / Contact email / Any queries email
   A: For any queries or assistance, you can email us directly at support@aivastra.com or our team will reach out to you shortly.
