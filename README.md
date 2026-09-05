@@ -2,7 +2,7 @@
 
 Production-grade, verified **WhatsApp AI Sales Agent** and **RAG (Retrieval-Augmented Generation)** backend service built for **Ai Vastra / Nice Digitals**.
 
-The agent is strictly grounded in the official knowledge base document (`AI_Vastra_WhatsApp_AI_FAQ.pdf`), delivers accurate answers, handles Pay-As-You-Go pricing and full package tiers (Starter, Growth, Pro, Enterprise), stays silent on irrelevant topics, schedules live demos, and provides seamless escalation to the **Ai Vastra Sales Team (support@aivastra.com)**.
+The agent is strictly grounded in the official knowledge base document (`AI_Vastra_WhatsApp_AI_FAQ.pdf`), delivers accurate answers, handles Pay-As-You-Go pricing and full package tiers (Starter, Growth, Pro, Enterprise), stays silent on irrelevant topics, schedules live demos, and provides seamless escalation to the **Ai Vastra Sales Team**.
 
 ---
 
